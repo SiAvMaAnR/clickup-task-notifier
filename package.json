@@ -1,10 +1,20 @@
 {
   "name": "clickup-task-notifier",
   "version": "1.0.0",
-  "main": "index.js",
-  "author": "",
-  "license": "ISC",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "3.7.4"
+  },
+  "dependencies": {
+    "dotenv": "17.2.3",
+    "ioredis": "5.8.2",
+    "node-cron": "4.2.1"
   }
 }
