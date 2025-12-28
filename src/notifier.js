@@ -1,4 +1,5 @@
 import { NOTIFICATION_TYPE } from './constants.js';
+import { logger } from './utils/logger.js';
 
 export class Notifier {
   constructor(clickup, discord, tracker, appConfig) {
@@ -67,7 +68,7 @@ export class Notifier {
       await this.processIncompleteTask(task);
       await this.processStuckTask(task);
     } catch (error) {
-      console.error(`Failed to process task ${task.id}:`, error.message);
+      logger.error(`Failed to process task ${task.id}:`, error.message);
     }
   }
 
@@ -80,7 +81,7 @@ export class Notifier {
 
     const adaptedTasks = await this.attachTimeInStatus(tasks);
 
-    console.log(`Fetched ${adaptedTasks.length} active tasks`);
+    logger.info(`Fetched ${adaptedTasks.length} active tasks`);
 
     for (const task of adaptedTasks) {
       await this.processTask(task);

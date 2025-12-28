@@ -4,11 +4,12 @@ import { ClickUpClient } from './services/clickup.js';
 import { DiscordClient } from './services/discord.js';
 import { TrackerClient } from './services/tracker.js';
 import { Notifier } from './notifier.js';
+import { logger } from './utils/logger.js';
 
 const { app: appConfig } = config;
 
 async function execute() {
-  console.log('Starting ClickUp check...');
+  logger.info('Starting script...');
 
   const clickup = new ClickUpClient(config.clickup);
   const discord = new DiscordClient(config.discord, appConfig);
@@ -18,13 +19,12 @@ async function execute() {
 
   try {
     await notifier.run();
-    console.log('Check completed successfully');
+    logger.info('Script completed');
   } catch (error) {
-    console.error('Check failed:', error.message);
+    logger.error('Script failed:', error.message);
   } finally {
     await tracker.close();
   }
 }
 
-execute();
 cron.schedule(appConfig.cronSchedule, execute);

@@ -1,4 +1,5 @@
 import { NOTIFICATION_LABEL } from '../constants.js';
+import { logger } from '../utils/logger.js';
 
 export class DiscordClient {
   constructor(config, appConfig) {
@@ -21,7 +22,7 @@ export class DiscordClient {
 
       return true;
     } catch (error) {
-      console.error('Discord webhook failed:', error.message);
+      logger.error('Discord webhook failed:', error.message);
       throw error;
     }
   }
@@ -40,7 +41,7 @@ export class DiscordClient {
       this.webhookUrl.incompleteTask,
       this.formatMessage(NOTIFICATION_LABEL.INCOMPLETE_TASK, task)
     );
-    console.log(`Sent ${task.id} incomplete task notification`);
+    logger.info(`Sent ${task.id} incomplete task notification`);
   }
 
   async sendStuckTaskNotification(task) {
@@ -48,6 +49,6 @@ export class DiscordClient {
       this.webhookUrl.stuckTask,
       this.formatMessage(NOTIFICATION_LABEL.STUCK_TASK, task)
     );
-    console.log(`Sent ${task.id} stuck task notification`);
+    logger.info(`Sent ${task.id} stuck task notification`);
   }
 }

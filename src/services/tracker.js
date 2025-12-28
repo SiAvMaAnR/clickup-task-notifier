@@ -1,5 +1,6 @@
 import Redis from 'ioredis';
 import { NOTIFICATION_TYPE } from '../constants.js';
+import { logger } from '../utils/logger.js';
 
 export class TrackerClient {
   constructor(config) {
@@ -7,7 +8,7 @@ export class TrackerClient {
     this.keyPrefix = config.keyPrefix;
     this.ttlSeconds = config.ttlSeconds;
     this.redis.on('error', (err) => {
-      console.error('Redis error:', err.message);
+      logger.error('Redis error:', err.message);
     });
   }
 
