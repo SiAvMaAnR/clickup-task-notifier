@@ -37,7 +37,7 @@ export class Notifier {
       );
 
       if (!alreadyNotified) {
-        await this.discord.sendIncompleteTasksNotification(task);
+        await this.discord.sendIncompleteTaskNotification(task);
         await this.tracker.markNotified(task.id, NOTIFICATION_TYPE.INCOMPLETE_TASK);
       }
     }
