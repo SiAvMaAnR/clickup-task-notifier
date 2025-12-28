@@ -32,7 +32,7 @@ export class DiscordClient {
     const assignee = assignees?.map((a) => a.username).join(', ') || 'not assigned';
     const timeStr = timeInStatus ? `${Math.floor(timeInStatus / 60)}h` : '-';
 
-    return `**${type}** | ${name} | ${statusStr} | ${timeStr} | ${assignee} | ${url}`;
+    return `**${type}** | ${name} | ${statusStr} | ${timeStr} | ${assignee} | <${url}>`;
   }
 
   async sendIncompleteTaskNotification(task) {
