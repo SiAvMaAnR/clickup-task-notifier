@@ -25,46 +25,49 @@ export class Notifier {
     }));
   }
 
-  async processIncompleteTasks(tasks) {
-    for (const task of tasks) {
-      if (!this.isIncomplete(task)) {
-        continue;
-      }
+  async processIncompleteTask(task) {
+    if (!this.isIncomplete(task)) {
+      return;
+    }
 
-      const alreadyNotified = await this.tracker.wasNotified(
-        task.id,
-        NOTIFICATION_TYPE.INCOMPLETE_TASK
-      );
+    const alreadyNotified = await this.tracker.wasNotified(
+      task.id,
+      NOTIFICATION_TYPE.INCOMPLETE_TASK
+    );
 
-      if (!alreadyNotified) {
-        await this.discord.sendIncompleteTaskNotification(task);
-        await this.tracker.markNotified(task.id, NOTIFICATION_TYPE.INCOMPLETE_TASK);
-      }
+    if (!alreadyNotified) {
+      await this.discord.sendIncompleteTaskNotification(task);
+      await this.tracker.markNotified(task.id, NOTIFICATION_TYPE.INCOMPLETE_TASK);
     }
   }
 
-  async processStuckTasks(tasks) {
-    for (const task of tasks) {
-      const status = task.status?.status?.toLowerCase();
+  async processStuckTask(task) {
+    const status = task.status?.status?.toLowerCase();
+    const isTargetStatus = this.appConfig.stuckTask.statuses.includes(status);
+    const isStuck = task.timeInStatus > this.appConfig.stuckTask.afterMinutes;
 
-      if (!this.appConfig.stuckTask.statuses.includes(status)) {
-        continue;
-      }
+    if (!isTargetStatus || !isStuck) {
+      return;
+    }
 
-      if (task.timeInStatus <= this.appConfig.stuckTask.afterMinutes) {
-        continue;
-      }
+    const alreadyNotified = await this.tracker.wasNotified(
+      task.id,
+      NOTIFICATION_TYPE.STUCK_TASK,
+      task.status?.status
+    );
 
-      const alreadyNotified = await this.tracker.wasNotified(
-        task.id,
-        NOTIFICATION_TYPE.STUCK_TASK,
-        task.status?.status
-      );
+    if (!alreadyNotified) {
+      await this.discord.sendStuckTaskNotification(task);
+      await this.tracker.markNotified(task.id, NOTIFICATION_TYPE.STUCK_TASK, task.status?.status);
+    }
+  }
 
-      if (!alreadyNotified) {
-        await this.discord.sendStuckTaskNotification(task);
-        await this.tracker.markNotified(task.id, NOTIFICATION_TYPE.STUCK_TASK, task.status?.status);
-      }
+  async processTask(task) {
+    try {
+      await this.processIncompleteTask(task);
+      await this.processStuckTask(task);
+    } catch (error) {
+      console.error(`Failed to process task ${task.id}:`, error.message);
     }
   }
 
@@ -79,7 +82,8 @@ export class Notifier {
 
     console.log(`Fetched ${adaptedTasks.length} active tasks`);
 
-    await this.processIncompleteTasks(adaptedTasks);
-    await this.processStuckTasks(adaptedTasks);
+    for (const task of adaptedTasks) {
+      await this.processTask(task);
+    }
   }
 }
