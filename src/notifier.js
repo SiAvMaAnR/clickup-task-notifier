@@ -69,11 +69,17 @@ export class Notifier {
   }
 
   async run() {
-    const tasks = await this.clickup.getTasks().then((tasks) => this.attachTimeInStatus(tasks));
-    
-    console.log(`Fetched ${tasks.length} active tasks`);
+    const tasks = await this.clickup.getTasks();
 
-    await this.processIncompleteTasks(tasks);
-    await this.processStuckTasks(tasks);
+    if (tasks.length) {
+      return;
+    }
+
+    const adaptedTasks = await this.attachTimeInStatus(tasks);
+
+    console.log(`Fetched ${adaptedTasks.length} active tasks`);
+
+    await this.processIncompleteTasks(adaptedTasks);
+    await this.processStuckTasks(adaptedTasks);
   }
 }

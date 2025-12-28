@@ -44,10 +44,6 @@ export class ClickUpClient {
   }
 
   async getBulkTimeInStatus(taskIds) {
-    if (taskIds.length === 0) {
-      return {};
-    }
-
     const queryString = taskIds.map((id) => `task_ids=${id}`).join('&');
     return this.request(`/task/bulk_time_in_status/task_ids?${queryString}`);
   }
