@@ -71,7 +71,7 @@ export class Notifier {
   async run() {
     const tasks = await this.clickup.getTasks();
 
-    if (tasks.length) {
+    if (tasks.length === 0) {
       return;
     }
 
