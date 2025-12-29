@@ -37,10 +37,27 @@ export class ClickUpClient {
     return lists.at(-1).id;
   }
 
+  async fetchPage(listId, page) {
+    const data = await this.request(
+      `/list/${listId}/task?include_closed=false&subtasks=false&page=${page}`
+    );
+    return data.tasks || [];
+  }
+
   async getTasks() {
     const listId = await this.getListId();
-    const data = await this.request(`/list/${listId}/task?include_closed=false&subtasks=false`);
-    return data.tasks || [];
+    const tasks = [];
+
+    for (let page = 0; ; page++) {
+      const pageTasks = await this.fetchPage(listId, page);
+      tasks.push(...pageTasks);
+
+      if (pageTasks.length < 100) {
+        break;
+      }
+    }
+
+    return tasks;
   }
 
   async getBulkTimeInStatus(taskIds) {
