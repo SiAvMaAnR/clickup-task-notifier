@@ -17,6 +17,7 @@ export const config = {
   },
   discord: {
     webhook: {
+      newTask: required('DISCORD_WEBHOOK_NEW_TASKS'),
       incompleteTask: required('DISCORD_WEBHOOK_INCOMPLETE_TASKS'),
       stuckTask: required('DISCORD_WEBHOOK_STUCK_TASKS'),
     },
@@ -28,6 +29,9 @@ export const config = {
   },
   app: {
     cronSchedule: '*/30 * * * *', // Every 30 minutes
+    newTask: {
+      withinMinutes: 60, // 1 hour
+    },
     stuckTask: {
       statuses: [STATUS.IN_PROGRESS, STATUS.CODE_REVIEW, STATUS.FEATURE_TEST],
       afterMinutes: 1440, // 24 hours

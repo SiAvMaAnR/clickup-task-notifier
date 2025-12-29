@@ -36,6 +36,14 @@ export class DiscordClient {
     return `**${type}** | ${name} | ${statusStr} | ${timeStr} | ${assignee} | <${url}>`;
   }
 
+  async sendNewTaskNotification(task) {
+    await this.sendWebhook(
+      this.webhookUrl.newTask,
+      this.formatMessage(NOTIFICATION_LABEL.NEW_TASK, task)
+    );
+    logger.info(`Sent ${task.id} new task notification`);
+  }
+
   async sendIncompleteTaskNotification(task) {
     await this.sendWebhook(
       this.webhookUrl.incompleteTask,

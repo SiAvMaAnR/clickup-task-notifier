@@ -1,19 +1,13 @@
 import { NOTIFICATION_TYPE } from './constants.js';
 import { logger } from './utils/logger.js';
+import { TaskHelper } from './utils/task.helper.js';
 
 export class Notifier {
   constructor(clickup, discord, tracker, appConfig) {
     this.clickup = clickup;
     this.discord = discord;
     this.tracker = tracker;
-    this.appConfig = appConfig;
-  }
-
-  isIncomplete(task) {
-    const noAssignee = !task.assignees || task.assignees.length === 0;
-    const noPriority = !task.priority;
-    const noEstimate = !task.time_estimate;
-    return noAssignee || noPriority || noEstimate;
+    this.taskHelper = new TaskHelper(appConfig);
   }
 
   async attachTimeInStatus(tasks) {
@@ -26,11 +20,16 @@ export class Notifier {
     }));
   }
 
-  async processIncompleteTask(task) {
-    if (!this.isIncomplete(task)) {
-      return;
-    }
+  async processNewTask(task) {
+    const alreadyNotified = await this.tracker.wasNotified(task.id, NOTIFICATION_TYPE.NEW_TASK);
 
+    if (!alreadyNotified) {
+      await this.discord.sendNewTaskNotification(task);
+      await this.tracker.markNotified(task.id, NOTIFICATION_TYPE.NEW_TASK);
+    }
+  }
+
+  async processIncompleteTask(task) {
     const alreadyNotified = await this.tracker.wasNotified(
       task.id,
       NOTIFICATION_TYPE.INCOMPLETE_TASK
@@ -43,14 +42,6 @@ export class Notifier {
   }
 
   async processStuckTask(task) {
-    const status = task.status?.status?.toLowerCase();
-    const isTargetStatus = this.appConfig.stuckTask.statuses.includes(status);
-    const isStuck = task.timeInStatus > this.appConfig.stuckTask.afterMinutes;
-
-    if (!isTargetStatus || !isStuck) {
-      return;
-    }
-
     const alreadyNotified = await this.tracker.wasNotified(
       task.id,
       NOTIFICATION_TYPE.STUCK_TASK,
@@ -65,8 +56,17 @@ export class Notifier {
 
   async processTask(task) {
     try {
-      await this.processIncompleteTask(task);
-      await this.processStuckTask(task);
+      if (this.taskHelper.isIncomplete(task)) {
+        await this.processIncompleteTask(task);
+      }
+
+      if (this.taskHelper.isNew(task)) {
+        await this.processNewTask(task);
+      }
+
+      if (this.taskHelper.isStuck(task)) {
+        await this.processStuckTask(task);
+      }
     } catch (error) {
       logger.error(`Failed to process task ${task.id}:`, error.message);
     }

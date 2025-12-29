@@ -1,9 +1,11 @@
 export const NOTIFICATION_TYPE = {
+  NEW_TASK: 'new_task',
   INCOMPLETE_TASK: 'incomplete_task',
   STUCK_TASK: 'stuck_task',
 };
 
 export const NOTIFICATION_LABEL = {
+  NEW_TASK: 'Новая задача',
   INCOMPLETE_TASK: 'Не хватает данных',
   STUCK_TASK: 'Долго висит',
 };
