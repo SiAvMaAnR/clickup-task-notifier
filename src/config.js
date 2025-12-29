@@ -28,7 +28,7 @@ export const config = {
     ttlSeconds: 604800, // 7 days
   },
   app: {
-    cronSchedule: '*/30 * * * *', // Every 30 minutes
+    cronSchedule: '*/10 * * * *', // Every 10 minutes
     newTask: {
       withinMinutes: 60, // 1 hour
     },
