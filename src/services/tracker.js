@@ -13,7 +13,7 @@ export class TrackerClient {
   }
 
   buildKey(taskId, type, status) {
-    if (type === NOTIFICATION_TYPE.INCOMPLETE_TASK) {
+    if (!status) {
       return `${this.keyPrefix}:${taskId}:${type}`;
     }
 
